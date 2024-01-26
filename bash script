@@ -1,0 +1,35 @@
+# PostgreSQL export
+HOST="localhost"
+PG_USER="postgres"
+PG_DB="postgres"
+EXPORT_PATH="F:/postgresql_training1_ati/sf4_data.csv"
+
+export PGPASSWORD=pgadmin
+"C:\Program Files\PostgreSQL\14\bin\psql" -h $HOST -U $PG_USER -d $PG_DB -c "\COPY sf_data (s_id, s_name) TO '$EXPORT_PATH' WITH DELIMITER '|' CSV HEADER ";
+
+# Snowflake import
+SNOWSQL_ACCOUNT="kbefsvr-tm08737"
+SNOWSQL_USER="cn03"
+export SNOWSQL_PWD=XXXX
+SNOWSQL_DATABASE="ATI_TRAINING_DB"
+SNOWSQL_SCHEMA="ATI_ST_SCHEMA"
+EXPORT_PATH="F:/postgresql_training1_ati/sf4_data.csv"
+
+# Snowflake commands
+snowsql -a $SNOWSQL_ACCOUNT -u $SNOWSQL_USER -d $SNOWSQL_DATABASE -s $SNOWSQL_SCHEMA <<EOF
+  -- Upload to Snowflake internal stage
+  remove @~/pg_sf_stage;
+  PUT file://$EXPORT_PATH  @~/pg_sf_stage;
+
+  -- Copy data from internal stage to Snowflake table
+  drop table sf5_data;
+  create table sf5_data(s_id int,s_name text);
+
+  COPY INTO sf5_data FROM @~/pg_sf_stage/sf4_data.csv
+  FILE_FORMAT = (
+    TYPE = 'CSV'
+    FIELD_DELIMITER = '|'
+    SKIP_HEADER = 1
+    FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+  );
+EOF
