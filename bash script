@@ -4,7 +4,7 @@ PG_USER="postgres"
 PG_DB="postgres"
 EXPORT_PATH="F:/postgresql_training1_ati/sf4_data.csv"
 
-export PGPASSWORD=pgadmin
+export PGPASSWORD=XXXX
 "C:\Program Files\PostgreSQL\14\bin\psql" -h $HOST -U $PG_USER -d $PG_DB -c "\COPY sf_data (s_id, s_name) TO '$EXPORT_PATH' WITH DELIMITER '|' CSV HEADER ";
 
 # Snowflake import
